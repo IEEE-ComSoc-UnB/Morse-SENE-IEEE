@@ -1,3 +1,0 @@
-from GUI import *
-
-GUI()
