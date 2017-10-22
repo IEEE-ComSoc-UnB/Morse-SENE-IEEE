@@ -78,13 +78,13 @@ class Scanner(object):
             #elif monit == "MEAN":
             #print(np.max(pow_db))
             
-            if (np.max(pow_db)>10) and (x==0):
+            if (np.max(pow_db)>30) and (x==0):
                 x=1
                 if lista !=[]:
                    lista.append(time.time()-t[0]) 
                 t[0]=time.time()
                 #print(t)
-            elif (np.max(pow_db)<10) and (x==1):
+            elif (np.max(pow_db)<30) and (x==1):
                 lista.append(time.time()-t[0])
                 t[0]=time.time()
                 x=0
@@ -96,7 +96,8 @@ class Scanner(object):
                 #self.sdr.close()
                 #print('depois do close')
                 #return
-            elif time.time()-t[0]>1.5:
+            elif (time.time()-t[0]>1) and (lista!=[]) and (x==0):
+                #print('timeout')
                 flag[0]=1
                 self.sdr.stop()
         self.sdr.close()    
