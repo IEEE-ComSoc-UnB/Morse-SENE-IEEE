@@ -12,7 +12,11 @@ import scipy.signal as sig
 from rtlsdr import RtlSdr
 import numpy as np
 import asyncio as asy
+import time
 
+lista = []
+t=[0]
+flag=[0]
 class Scanner(object):
     
     def __init__(self,sample_rate,gain):
@@ -58,7 +62,7 @@ class Scanner(object):
         if self.sdr.center_freq != fc:
             self.sdr.center_freq = fc
         count = 0
-        print(1)
+        x=0
         
         async for smpls in self.sdr.stream():
             count = count + 1
@@ -73,9 +77,30 @@ class Scanner(object):
             #    print(np.max(pow_db))
             #elif monit == "MEAN":
             #print(np.max(pow_db))
-            if np.max(pow_db)>10:
-                return 1
             
+            if (np.max(pow_db)>30) and (x==0):
+                x=1
+                if lista !=[]:
+                   lista.append(time.time()-t[0]) 
+                t[0]=time.time()
+                #print(t)
+            elif (np.max(pow_db)<30) and (x==1):
+                lista.append(time.time()-t[0])
+                t[0]=time.time()
+                x=0
+                #print(time.time()-t)
+                #print(lista)
+                #print('antes do stop')
+                self.sdr.stop()
+                #print('antes do close')
+                #self.sdr.close()
+                #print('depois do close')
+                #return
+            elif (time.time()-t[0]>1) and (lista!=[]) and (x==0):
+                #print('timeout')
+                flag[0]=1
+                self.sdr.stop()
+        self.sdr.close()    
             #if count > count_max:
             #    self.sdr.stop()   
         #print('done!')        
@@ -106,9 +131,10 @@ class Scanner(object):
         #print("Threshold reached!")
         
     def start_monitor_psd(self,fc,samp_scale = 256,count_max=10,monit = "MAX"):
-        asy.get_event_loop().run_until_complete(self.monitor_psd(fc,\
+        #print('antes do return')
+        return asy.get_event_loop().run_until_complete(self.monitor_psd(fc,\
                           samp_scale,count_max,monit))
         
     def start_monitor_psd_until(self,fc,thresh,samp_scale = 256,monit = "MAX"):
-       return  asy.get_event_loop().run_until_complete(self.monitor_psd_until(fc,\
+        return  asy.get_event_loop().run_until_complete(self.monitor_psd_until(fc,\
                           thresh,samp_scale,monit))
