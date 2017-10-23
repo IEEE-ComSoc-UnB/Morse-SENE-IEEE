@@ -1,6 +1,7 @@
 from Tkinter import *
 import ttk
 from PIL import ImageTk , Image
+from main import *
 
 Value = True
 
@@ -9,7 +10,10 @@ def clear_textbox():
 
 def signal_interpreter():
     global Value
-    while()
+    while(Value = True):
+        letter = proc_sinais()
+        if (letter.isalum() = True):
+            entry.insert(0,letter)
 
 
 
